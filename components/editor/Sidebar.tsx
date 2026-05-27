@@ -1,262 +1,162 @@
 "use client";
 
-import { useState } from "react";
 import {
-  Plus,
-  GripVertical,
+  Copy,
+  Edit3,
   Eye,
   EyeOff,
-  Copy,
+  Plus,
   Trash2,
-  X,
-  Pencil,
+  GripVertical,
 } from "lucide-react";
-import { DndContext, closestCenter, DragEndEvent } from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 
-import { useEditor } from "@/hooks/useEditor";
-import type { EditorSection, EditorSectionType } from "@/hooks/useEditor";
+import { useEditor, type EditorSectionType } from "@/hooks/useEditor";
 
-const sectionOptions: { type: EditorSectionType; label: string }[] = [
-  { type: "hero", label: "Hero" },
-  { type: "categories", label: "Categorias" },
-  { type: "products", label: "Produtos" },
-  { type: "banner", label: "Banner" },
-  { type: "faq", label: "FAQ" },
-  { type: "footer", label: "Footer" },
+const sectionOptions: EditorSectionType[] = [
+  "header",
+  "hero",
+  "categories",
+  "products",
+  "banner",
+  "faq",
+  "footer",
 ];
 
-function SidebarItem({ section }: { section: EditorSection }) {
+export function Sidebar() {
   const {
-    duplicateSection,
-    deleteSection,
-    renameSection,
-    toggleSectionVisibility,
+    sections,
     selectedSection,
     setSelectedSection,
+    addSection,
+    duplicateSection,
+    deleteSection,
+    toggleSectionVisibility,
   } = useEditor();
 
-  const [editing, setEditing] = useState(false);
-  const [label, setLabel] = useState(section.label);
-
-  const isSelected = selectedSection === section.id;
-
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({
-    id: section.id,
-  });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  function saveLabel() {
-    const cleanLabel = label.trim();
-
-    if (!cleanLabel) {
-      setLabel(section.label);
-      setEditing(false);
-      return;
-    }
-
-    renameSection(section.id, cleanLabel);
-    setEditing(false);
-  }
-
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      onClick={() => setSelectedSection(section.id)}
-      className={`flex cursor-pointer items-center justify-between rounded-[28px] border px-4 py-5 transition ${
-        section.hidden
-          ? "border-red-500/20 bg-red-500/5 opacity-60"
-          : isSelected
-          ? "border-blue-500 bg-blue-500/10 shadow-[0_0_0_1px_rgba(59,130,246,0.4)]"
-          : "border-white/10 bg-[#0f0f0f] hover:border-white/20"
-      } ${isDragging ? "z-50 scale-[1.03] opacity-70" : ""}`}
-    >
-      <div className="flex min-w-0 flex-1 items-center gap-3">
-        <button
-          type="button"
-          {...attributes}
-          {...listeners}
-          onClick={(event) => event.stopPropagation()}
-          className="shrink-0 cursor-grab text-zinc-500 active:cursor-grabbing"
-          title="Arrastar seção"
-        >
-          <GripVertical size={18} />
-        </button>
-
-        {editing ? (
-          <input
-            value={label}
-            autoFocus
-            onClick={(event) => event.stopPropagation()}
-            onChange={(event) => setLabel(event.target.value)}
-            onBlur={saveLabel}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") {
-                saveLabel();
-              }
-
-              if (event.key === "Escape") {
-                setLabel(section.label);
-                setEditing(false);
-              }
-            }}
-            className="min-w-0 flex-1 rounded-xl border border-white/10 bg-black px-3 py-2 text-base font-bold text-white outline-none focus:border-white/40"
-          />
-        ) : (
-          <strong
-            title={section.label}
-            className={`min-w-0 flex-1 truncate text-lg ${
-              section.hidden ? "text-zinc-500 line-through" : "text-white"
-            }`}
-          >
-            {section.label}
-          </strong>
-        )}
-      </div>
-
-      <div className="ml-3 flex shrink-0 items-center gap-2">
-        <button
-          type="button"
-          onClick={(event) => {
-            event.stopPropagation();
-            setEditing(true);
-          }}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 transition hover:bg-white hover:text-black"
-          title="Editar nome"
-        >
-          <Pencil size={16} />
-        </button>
-
-        <button
-          type="button"
-          onClick={(event) => {
-            event.stopPropagation();
-            toggleSectionVisibility(section.id);
-          }}
-          className={`flex h-10 w-10 items-center justify-center rounded-full transition ${
-            section.hidden
-              ? "bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white"
-              : "bg-white/5 hover:bg-white/10"
-          }`}
-          title="Mostrar/ocultar"
-        >
-          {section.hidden ? <EyeOff size={16} /> : <Eye size={16} />}
-        </button>
-
-        <button
-          type="button"
-          onClick={(event) => {
-            event.stopPropagation();
-            duplicateSection(section.id);
-          }}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 transition hover:bg-white/10"
-          title="Duplicar"
-        >
-          <Copy size={16} />
-        </button>
-
-        <button
-          type="button"
-          onClick={(event) => {
-            event.stopPropagation();
-            deleteSection(section.id);
-          }}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500/10 text-red-400 transition hover:bg-red-500 hover:text-white"
-          title="Excluir"
-        >
-          <Trash2 size={16} />
-        </button>
-      </div>
-    </div>
-  );
-}
-
-export function Sidebar() {
-  const { sections, setSections, addSection } = useEditor();
-  const [showOptions, setShowOptions] = useState(false);
-
-  function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
-
-    if (!over) return;
-
-    if (active.id !== over.id) {
-      const oldIndex = sections.findIndex((item) => item.id === active.id);
-      const newIndex = sections.findIndex((item) => item.id === over.id);
-
-      setSections(arrayMove(sections, oldIndex, newIndex));
-    }
-  }
-
-  return (
-    <aside className="w-[370px] shrink-0 border-r border-white/10 bg-black text-white">
-      <div className="border-b border-white/10 px-6 py-8">
-        <p className="text-xs uppercase tracking-[0.4em] text-zinc-500">
+    <aside className="flex h-full w-full flex-col bg-black text-white">
+      <div className="border-b border-white/10 px-7 pb-8 pt-8">
+        <p className="text-xs uppercase tracking-[0.45em] text-zinc-500">
           Estrutura da loja
         </p>
 
-        <h2 className="mt-3 text-5xl font-black">Editor visual</h2>
+        <h1 className="mt-5 text-5xl font-black leading-[0.95]">
+          Editor
+          <br />
+          visual
+        </h1>
       </div>
 
-      <div className="p-6">
+      <div className="flex-1 overflow-y-auto px-5 py-6">
         <button
           type="button"
-          onClick={() => setShowOptions((current) => !current)}
-          className="flex w-full items-center justify-center gap-3 rounded-[24px] bg-white px-6 py-5 font-bold text-black transition hover:scale-[1.02]"
+          onClick={() => addSection("hero")}
+          className="mb-6 flex h-16 w-full items-center justify-center gap-3 rounded-[28px] bg-white text-base font-black text-black transition hover:scale-[1.02]"
         >
-          {showOptions ? <X size={22} /> : <Plus size={22} />}
-          {showOptions ? "Fechar opções" : "Adicionar seção"}
+          <Plus size={22} />
+          Adicionar seção
         </button>
 
-        {showOptions && (
-          <div className="mt-4 grid gap-3 rounded-[28px] border border-white/10 bg-white/[0.04] p-4">
-            {sectionOptions.map((option) => (
-              <button
-                key={option.type}
-                type="button"
-                onClick={() => {
-                  addSection(option.type);
-                  setShowOptions(false);
+        <div className="space-y-4">
+          {sections.map((section) => {
+            const selected = selectedSection === section.id;
+
+            return (
+              <div
+                key={section.id}
+                role="button"
+                tabIndex={0}
+                onClick={() => setSelectedSection(section.id)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    setSelectedSection(section.id);
+                  }
                 }}
-                className="rounded-2xl bg-white/5 px-5 py-4 text-left font-bold text-zinc-200 transition hover:bg-white hover:text-black"
+                className={`flex min-h-[76px] w-full items-center gap-3 rounded-[26px] border px-4 transition ${
+                  selected
+                    ? "border-blue-500 bg-[#06111f]"
+                    : "border-white/10 bg-[#101010] hover:border-white/25"
+                }`}
               >
-                + {option.label}
+                <GripVertical size={18} className="shrink-0 text-zinc-500" />
+
+                <span className="min-w-0 flex-1 truncate text-lg font-black text-white">
+                  {section.label}
+                </span>
+
+                <div className="flex shrink-0 items-center gap-2">
+                  <button
+                    type="button"
+                    title="Editar seção"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setSelectedSection(section.id);
+                    }}
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
+                  >
+                    <Edit3 size={16} />
+                  </button>
+
+                  <button
+                    type="button"
+                    title="Mostrar/Ocultar"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      toggleSectionVisibility(section.id);
+                    }}
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
+                  >
+                    {section.hidden ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+
+                  <button
+                    type="button"
+                    title="Duplicar"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      duplicateSection(section.id);
+                    }}
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
+                  >
+                    <Copy size={16} />
+                  </button>
+
+                  <button
+                    type="button"
+                    title="Excluir"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      deleteSection(section.id);
+                    }}
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500/15 text-red-400 transition hover:bg-red-500/25"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="mt-8 rounded-[24px] border border-white/10 bg-white/5 p-4">
+          <p className="mb-3 text-xs font-black uppercase tracking-[0.25em] text-zinc-500">
+            Nova seção
+          </p>
+
+          <div className="grid grid-cols-2 gap-2">
+            {sectionOptions.map((type) => (
+              <button
+                key={type}
+                type="button"
+                onClick={() => addSection(type)}
+                className="rounded-2xl bg-white/10 px-3 py-3 text-xs font-bold capitalize text-white transition hover:bg-white hover:text-black"
+              >
+                {type}
               </button>
             ))}
           </div>
-        )}
+        </div>
       </div>
-
-      <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext
-          items={sections.map((section) => section.id)}
-          strategy={verticalListSortingStrategy}
-        >
-          <div className="space-y-3 px-5 pb-10">
-            {sections.map((section) => (
-              <SidebarItem key={section.id} section={section} />
-            ))}
-          </div>
-        </SortableContext>
-      </DndContext>
     </aside>
   );
 }

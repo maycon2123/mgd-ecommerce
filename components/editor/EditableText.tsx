@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useEditor } from "@/hooks/useEditor";
 
 type EditableTextProps = {
@@ -16,36 +16,59 @@ export function EditableText({
   field,
   initialValue,
   className = "",
-  multiline = false,
 }: EditableTextProps) {
   const { updateSectionContent } = useEditor();
+
   const [value, setValue] = useState(initialValue);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  function resizeTextarea() {
+    const textarea = textareaRef.current;
+
+    if (!textarea) return;
+
+    textarea.style.height = "auto";
+    textarea.style.height = `${textarea.scrollHeight}px`;
+  }
 
   useEffect(() => {
     setValue(initialValue);
   }, [initialValue]);
 
-  function handleChange(newValue: string) {
+  useEffect(() => {
+    resizeTextarea();
+  }, [value, className]);
+
+  function handleChange(event: React.ChangeEvent<HTMLTextAreaElement>) {
+    const newValue = event.target.value;
+
     setValue(newValue);
     updateSectionContent(sectionId, field, newValue);
   }
 
-  if (multiline) {
-    return (
-      <textarea
-        value={value}
-        rows={1}
-        onChange={(event) => handleChange(event.target.value)}
-        className={`w-full resize-none overflow-hidden bg-transparent outline-none ${className}`}
-      />
-    );
-  }
-
   return (
-    <input
+    <textarea
+      ref={textareaRef}
       value={value}
-      onChange={(event) => handleChange(event.target.value)}
-      className={`w-full bg-transparent outline-none ${className}`}
+      onChange={handleChange}
+      rows={1}
+      spellCheck={false}
+      className={`
+        block
+        w-full
+        max-w-full
+        min-w-0
+        resize-none
+        overflow-hidden
+        whitespace-pre-wrap
+        break-words
+        border-none
+        bg-transparent
+        p-0
+        outline-none
+        leading-[inherit]
+        ${className}
+      `}
     />
   );
 }

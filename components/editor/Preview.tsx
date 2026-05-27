@@ -1,45 +1,57 @@
 "use client";
 
-import { useState } from "react";
-import { SectionRenderer } from "./SectionRenderer";
+import {
+  DndContext,
+  closestCenter,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  arrayMove,
+} from "@dnd-kit/sortable";
+
 import { useEditor } from "@/hooks/useEditor";
-import { DeviceToolbar, DeviceMode } from "./DeviceToolbar";
 import { PreviewDeviceFrame } from "./PreviewDeviceFrame";
+import { SortableSection } from "./SortableSection";
+import { SectionRenderer } from "./SectionRenderer";
 
 export function Preview() {
-  const { sections } = useEditor();
-  const [device, setDevice] = useState<DeviceMode>("desktop");
+  const { sections, setSections } = useEditor();
+
+  const visibleSections = sections.filter((section) => !section.hidden);
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = sections.findIndex((section) => section.id === active.id);
+    const newIndex = sections.findIndex((section) => section.id === over.id);
+
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    setSections(arrayMove(sections, oldIndex, newIndex));
+  }
 
   return (
-    <section className="flex-1 overflow-auto bg-[#d8d3cb] p-10">
-      <div className="mb-8 flex justify-center">
-        <DeviceToolbar device={device} onChange={setDevice} />
-      </div>
-
-      <PreviewDeviceFrame device={device}>
-        <div className="overflow-hidden rounded-[36px] border border-black/5 bg-[#f8f8f8]">
-          <header className="flex items-center justify-between border-b border-black/5 bg-white px-10 py-8">
-            <div>
-              <p className="text-xs uppercase tracking-[0.35em] text-[#7b7691]">
-                Fashion
-              </p>
-
-              <h2 className="mt-1 text-3xl font-black text-black">
-                MGD Fashion
-              </h2>
+    <div className="min-h-full px-10 pb-20 pt-24">
+      <PreviewDeviceFrame>
+        <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext
+            items={visibleSections.map((section) => section.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="space-y-8">
+              {visibleSections.map((section) => (
+                <SortableSection key={section.id} id={section.id}>
+                  <SectionRenderer section={section} />
+                </SortableSection>
+              ))}
             </div>
-
-            <nav className="hidden gap-8 font-medium text-black md:flex">
-              <button>Feminino</button>
-              <button>Masculino</button>
-              <button>Coleções</button>
-              <button>Acessórios</button>
-            </nav>
-          </header>
-
-          <SectionRenderer sections={sections} />
-        </div>
+          </SortableContext>
+        </DndContext>
       </PreviewDeviceFrame>
-    </section>
+    </div>
   );
 }

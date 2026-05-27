@@ -1,40 +1,60 @@
 "use client";
 
-import { Monitor, Smartphone, Tablet } from "lucide-react";
+import {
+  Monitor,
+  Tablet,
+  Smartphone,
+} from "lucide-react";
 
-export type DeviceMode = "desktop" | "tablet" | "mobile";
+import { useEditor } from "@/hooks/useEditor";
 
-type DeviceToolbarProps = {
-  device: DeviceMode;
-  onChange: (device: DeviceMode) => void;
-};
+export function DeviceToolbar() {
+  const { previewDevice, setPreviewDevice } =
+    useEditor();
 
-export function DeviceToolbar({ device, onChange }: DeviceToolbarProps) {
   const devices = [
-    { id: "desktop" as const, label: "Desktop", icon: Monitor },
-    { id: "tablet" as const, label: "Tablet", icon: Tablet },
-    { id: "mobile" as const, label: "Mobile", icon: Smartphone },
-  ];
+    {
+      id: "desktop",
+      icon: Monitor,
+      label: "Desktop",
+    },
+    {
+      id: "tablet",
+      icon: Tablet,
+      label: "Tablet",
+    },
+    {
+      id: "mobile",
+      icon: Smartphone,
+      label: "Mobile",
+    },
+  ] as const;
 
   return (
-    <div className="flex items-center gap-2 rounded-full border border-black/10 bg-white p-2 shadow-xl">
-      {devices.map((item) => {
-        const Icon = item.icon;
-        const active = device === item.id;
+    <div className="flex items-center gap-3 rounded-full bg-white p-2 shadow-2xl">
+      {devices.map((device) => {
+        const Icon = device.icon;
+
+        const active =
+          previewDevice === device.id;
 
         return (
           <button
-            key={item.id}
-            type="button"
-            onClick={() => onChange(item.id)}
-            className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition ${
-              active
-                ? "bg-black text-white"
-                : "bg-zinc-100 text-black hover:bg-zinc-200"
-            }`}
+            key={device.id}
+            onClick={() =>
+              setPreviewDevice(device.id)
+            }
+            className={`
+              flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition-all
+              ${
+                active
+                  ? "bg-black text-white"
+                  : "bg-transparent text-black hover:bg-zinc-100"
+              }
+            `}
           >
-            <Icon size={16} />
-            {item.label}
+            <Icon size={18} />
+            {device.label}
           </button>
         );
       })}

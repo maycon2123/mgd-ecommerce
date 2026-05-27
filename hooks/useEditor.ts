@@ -3,6 +3,7 @@
 import { create } from "zustand";
 
 export type EditorSectionType =
+  | "header"
   | "hero"
   | "categories"
   | "products"
@@ -10,23 +11,47 @@ export type EditorSectionType =
   | "faq"
   | "footer";
 
+export type PreviewDevice = "desktop" | "tablet" | "mobile";
+
+export type EditorSectionStyles = {
+  backgroundColor?: string;
+  textColor?: string;
+  paddingTop?: number;
+  paddingBottom?: number;
+  borderRadius?: number;
+  maxWidth?: number;
+  textAlign?: "left" | "center" | "right";
+};
+
 export type EditorSection = {
   id: string;
   type: EditorSectionType;
   label: string;
   hidden?: boolean;
   content?: Record<string, string>;
-  styles?: Record<string, string>;
+  styles?: EditorSectionStyles;
 };
 
 type EditorStore = {
   selectedSection: string | null;
   sections: EditorSection[];
+  previewDevice: PreviewDevice;
 
+  setPreviewDevice: (device: PreviewDevice) => void;
   setSelectedSection: (id: string | null) => void;
   setSections: (sections: EditorSection[]) => void;
-  updateSectionContent: (id: string, field: string, value: string) => void;
-  updateSectionStyle: (id: string, field: string, value: string) => void;
+
+  updateSectionContent: (
+    sectionId: string,
+    field: string,
+    value: string
+  ) => void;
+
+  updateSectionStyles: (
+    sectionId: string,
+    styles: Partial<EditorSectionStyles>
+  ) => void;
+
   duplicateSection: (id: string) => void;
   deleteSection: (id: string) => void;
   addSection: (type: EditorSectionType) => void;
@@ -35,6 +60,7 @@ type EditorStore = {
 };
 
 const labels: Record<EditorSectionType, string> = {
+  header: "Header",
   hero: "Hero",
   categories: "Categorias",
   products: "Produtos",
@@ -43,95 +69,207 @@ const labels: Record<EditorSectionType, string> = {
   footer: "Footer",
 };
 
-const defaultHeroImage =
-  "https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=80&w=1200&auto=format&fit=crop";
+function getDefaultStyles(type: EditorSectionType): EditorSectionStyles {
+  if (type === "header") {
+    return {
+      backgroundColor: "#ffffff",
+      paddingTop: 0,
+      paddingBottom: 0,
+      borderRadius: 38,
+      textAlign: "left",
+    };
+  }
+
+  if (type === "hero") {
+    return {
+      backgroundColor: "#e7e1db",
+      paddingTop: 80,
+      paddingBottom: 80,
+      borderRadius: 40,
+      textAlign: "left",
+    };
+  }
+
+  if (type === "categories") {
+    return {
+      backgroundColor: "#edf3ff",
+      paddingTop: 80,
+      paddingBottom: 80,
+      borderRadius: 40,
+      textAlign: "center",
+    };
+  }
+
+  if (type === "products") {
+    return {
+      backgroundColor: "#f8fafc",
+      paddingTop: 80,
+      paddingBottom: 80,
+      borderRadius: 40,
+      textAlign: "center",
+    };
+  }
+
+  if (type === "banner") {
+    return {
+      backgroundColor: "#020617",
+      paddingTop: 80,
+      paddingBottom: 80,
+      borderRadius: 40,
+      textAlign: "left",
+    };
+  }
+
+  if (type === "faq") {
+    return {
+      backgroundColor: "#f3f3f3",
+      paddingTop: 80,
+      paddingBottom: 80,
+      borderRadius: 40,
+      textAlign: "left",
+    };
+  }
+
+  return {
+    backgroundColor: "#000000",
+    paddingTop: 60,
+    paddingBottom: 60,
+    borderRadius: 40,
+    textAlign: "left",
+  };
+}
 
 const initialSections: EditorSection[] = [
+  {
+    id: "header-section",
+    type: "header",
+    label: "Header",
+    hidden: false,
+    content: {
+      title: "MGD Fashion",
+      subtitle: "Fashion",
+    },
+    styles: getDefaultStyles("header"),
+  },
   {
     id: "hero-section",
     type: "hero",
     label: "Hero",
+    hidden: false,
     content: {
       title: "Moda moderna",
-      subtitle:
-        "Estrutura visual profissional para marcas de moda, coleções, campanhas e ecommerce premium.",
+      subtitle: "Estrutura visual profissional para marcas de moda.",
       buttonText: "Comprar agora",
-      image: defaultHeroImage,
     },
-    styles: {
-      backgroundColor: "#e7e1db",
-    },
+    styles: getDefaultStyles("hero"),
   },
   {
     id: "categories-section",
     type: "categories",
     label: "Categorias",
+    hidden: false,
     content: {
       title: "Explore por estilo",
       subtitle: "Estrutura modular para categorias principais da loja virtual.",
       buttonText: "Explorar",
-      category1Title: "Feminino",
-      category1Text: "Categoria visual para navegação do ecommerce.",
-      category2Title: "Masculino",
-      category2Text: "Categoria visual para navegação do ecommerce.",
-      category3Title: "Acessórios",
-      category3Text: "Categoria visual para navegação do ecommerce.",
-      category4Title: "Coleções",
-      category4Text: "Categoria visual para navegação do ecommerce.",
+      "card-title-1": "Feminino",
+      "card-title-2": "Masculino",
+      "card-title-3": "Acessórios",
+      "card-title-4": "Coleções",
+      "card-subtitle-1": "Categoria visual premium.",
+      "card-subtitle-2": "Categoria visual premium.",
+      "card-subtitle-3": "Categoria visual premium.",
+      "card-subtitle-4": "Categoria visual premium.",
     },
-    styles: {
-      backgroundColor: "#eef4ff",
-    },
+    styles: getDefaultStyles("categories"),
   },
   {
     id: "products-section",
     type: "products",
     label: "Produtos",
+    hidden: false,
     content: {
       title: "Produtos em destaque",
       subtitle: "Seleção especial para sua loja.",
       buttonText: "Comprar",
+      product1Title: "Produto Premium",
+      product2Title: "Produto Premium",
+      product3Title: "Produto Premium",
+      product1Description: "Área visual para preview dos produtos.",
+      product2Description: "Área visual para preview dos produtos.",
+      product3Description: "Área visual para preview dos produtos.",
+      product1Price: "R$ 199,90",
+      product2Price: "R$ 199,90",
+      product3Price: "R$ 199,90",
     },
+    styles: getDefaultStyles("products"),
   },
   {
     id: "banner-section",
     type: "banner",
     label: "Banner",
+    hidden: false,
     content: {
       title: "Fashion Weekend",
-      subtitle:
-        "Crie banners promocionais modernos para campanhas sazonais, descontos e lançamentos da loja.",
+      subtitle: "Crie banners promocionais modernos para campanhas sazonais.",
       buttonText: "Explorar campanha",
     },
-    styles: {
-      backgroundColor: "#020617",
-    },
+    styles: getDefaultStyles("banner"),
   },
   {
     id: "faq-section",
     type: "faq",
     label: "FAQ",
+    hidden: false,
     content: {
       title: "Perguntas frequentes",
       subtitle: "Tire as principais dúvidas dos seus clientes.",
-      buttonText: "Ver dúvidas",
+      faqQuestion1: "Como funciona o prazo de entrega?",
+      faqQuestion2: "Posso trocar ou devolver uma peça?",
+      faqQuestion3: "A loja aceita Pix e cartão?",
+      faqAnswer1: "Resposta editável diretamente pelo editor visual.",
+      faqAnswer2: "Resposta editável diretamente pelo editor visual.",
+      faqAnswer3: "Resposta editável diretamente pelo editor visual.",
     },
+    styles: getDefaultStyles("faq"),
   },
   {
     id: "footer-section",
     type: "footer",
     label: "Footer",
+    hidden: false,
     content: {
       title: "MGD Fashion",
-      subtitle: "Sua loja profissional criada com MGD Ecommerce.",
-      buttonText: "Voltar ao topo",
+      subtitle: "Plataforma visual moderna para ecommerce profissional.",
+      footerColumn1Title: "Navegação",
+      footerColumn2Title: "Categorias",
+      footerColumn3Title: "Redes sociais",
+      footerNav1: "Home",
+      footerNav2: "Produtos",
+      footerNav3: "Coleções",
+      footerNav4: "Contato",
+      footerCategory1: "Feminino",
+      footerCategory2: "Masculino",
+      footerCategory3: "Acessórios",
+      footerCategory4: "Promoções",
+      footerSocial1: "Instagram",
+      footerSocial2: "Facebook",
+      footerSocial3: "TikTok",
+      footerSocial4: "YouTube",
+      copyright: "© 2026 MGD Ecommerce — Todos os direitos reservados.",
     },
+    styles: getDefaultStyles("footer"),
   },
 ];
 
 export const useEditor = create<EditorStore>((set, get) => ({
-  selectedSection: null,
+  selectedSection: "hero-section",
+  previewDevice: "desktop",
   sections: initialSections,
+
+  setPreviewDevice: (device) => {
+    set({ previewDevice: device });
+  },
 
   setSelectedSection: (id) => {
     set({ selectedSection: id });
@@ -141,41 +279,40 @@ export const useEditor = create<EditorStore>((set, get) => ({
     set({ sections });
   },
 
-  updateSectionContent: (id, field, value) => {
+  updateSectionContent: (sectionId, field, value) => {
     set({
-      sections: get().sections.map((section) => {
-        if (section.id !== id) return section;
-
-        return {
-          ...section,
-          content: {
-            ...section.content,
-            [field]: value,
-          },
-        };
-      }),
+      sections: get().sections.map((section) =>
+        section.id === sectionId
+          ? {
+              ...section,
+              content: {
+                ...section.content,
+                [field]: value,
+              },
+            }
+          : section
+      ),
     });
   },
 
-  updateSectionStyle: (id, field, value) => {
+  updateSectionStyles: (sectionId, styles) => {
     set({
-      sections: get().sections.map((section) => {
-        if (section.id !== id) return section;
-
-        return {
-          ...section,
-          styles: {
-            ...section.styles,
-            [field]: value,
-          },
-        };
-      }),
+      sections: get().sections.map((section) =>
+        section.id === sectionId
+          ? {
+              ...section,
+              styles: {
+                ...section.styles,
+                ...styles,
+              },
+            }
+          : section
+      ),
     });
   },
 
   duplicateSection: (id) => {
-    const sections = get().sections;
-    const section = sections.find((item) => item.id === id);
+    const section = get().sections.find((item) => item.id === id);
 
     if (!section) return;
 
@@ -183,10 +320,12 @@ export const useEditor = create<EditorStore>((set, get) => ({
       ...section,
       id: `${section.type}-${Date.now()}`,
       label: `${section.label} cópia`,
+      content: { ...section.content },
+      styles: { ...section.styles },
     };
 
-    const index = sections.findIndex((item) => item.id === id);
-    const updatedSections = [...sections];
+    const index = get().sections.findIndex((item) => item.id === id);
+    const updatedSections = [...get().sections];
 
     updatedSections.splice(index + 1, 0, newSection);
 
@@ -197,11 +336,13 @@ export const useEditor = create<EditorStore>((set, get) => ({
   },
 
   deleteSection: (id) => {
-    const { sections, selectedSection } = get();
+    const updatedSections = get().sections.filter(
+      (section) => section.id !== id
+    );
 
     set({
-      sections: sections.filter((section) => section.id !== id),
-      selectedSection: selectedSection === id ? null : selectedSection,
+      sections: updatedSections,
+      selectedSection: updatedSections[0]?.id || null,
     });
   },
 
@@ -210,11 +351,9 @@ export const useEditor = create<EditorStore>((set, get) => ({
       id: `${type}-${Date.now()}`,
       type,
       label: labels[type],
-      content: {
-        title: labels[type],
-        subtitle: "Edite o conteúdo desta seção.",
-        buttonText: "Explorar",
-      },
+      hidden: false,
+      content: {},
+      styles: getDefaultStyles(type),
     };
 
     set({

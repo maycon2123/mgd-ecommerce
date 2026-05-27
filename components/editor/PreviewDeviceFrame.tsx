@@ -1,28 +1,30 @@
 "use client";
 
 import type { ReactNode } from "react";
-import type { DeviceMode } from "./DeviceToolbar";
+import { useEditor } from "@/hooks/useEditor";
 
 type PreviewDeviceFrameProps = {
-  device: DeviceMode;
   children: ReactNode;
 };
 
-export function PreviewDeviceFrame({
-  device,
-  children,
-}: PreviewDeviceFrameProps) {
-  const widthClass = {
-    desktop: "max-w-[1400px]",
-    tablet: "max-w-[768px]",
-    mobile: "max-w-[390px]",
+export function PreviewDeviceFrame({ children }: PreviewDeviceFrameProps) {
+  const { previewDevice } = useEditor();
+
+  const deviceWidth = {
+    desktop: "w-full max-w-[1450px]",
+    tablet: "w-[900px]",
+    mobile: "w-[430px]",
   };
 
   return (
-    <div
-      className={`mx-auto w-full rounded-[42px] bg-[#e6e1da] p-8 transition-all duration-300 ${widthClass[device]}`}
-    >
-      {children}
+    <div className="flex w-full justify-center px-10 py-24">
+      <div
+        className={`transition-all duration-500 ${deviceWidth[previewDevice]}`}
+      >
+        <div className="rounded-[42px] bg-[#e6e1da] p-8 shadow-2xl">
+          {children}
+        </div>
+      </div>
     </div>
   );
 }

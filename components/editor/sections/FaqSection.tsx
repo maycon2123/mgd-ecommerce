@@ -10,33 +10,47 @@ const faqItems = [
 ];
 
 export function FaqSection() {
-  const { sections } = useEditor();
+  const { sections, previewDevice } = useEditor();
 
   const section = sections.find((item) => item.type === "faq");
-
   const sectionId = section?.id || "faq-section";
 
-  const title =
-    section?.content?.title || "Perguntas frequentes";
+  const isMobile = previewDevice === "mobile";
+  const isTablet = previewDevice === "tablet";
 
+  const title = section?.content?.title || "Perguntas frequentes";
   const subtitle =
     section?.content?.subtitle ||
     "Tire as principais dúvidas dos seus clientes.";
 
   return (
-    <section className="rounded-[40px] bg-[#f7f7f7] px-16 py-24">
-      <div className="grid grid-cols-2 gap-16">
-        <div>
-          <p className="mb-6 text-sm uppercase tracking-[0.4em] text-[#7b7691]">
+    <section
+      className={`rounded-[40px] bg-[#f3f3f3] ${
+        isMobile ? "px-5 py-10" : isTablet ? "px-8 py-14" : "px-16 py-24"
+      }`}
+    >
+      <div
+        className={`grid ${
+          isMobile
+            ? "grid-cols-1 gap-10"
+            : isTablet
+            ? "grid-cols-1 gap-12"
+            : "grid-cols-2 gap-16"
+        }`}
+      >
+        <div className={isMobile ? "text-center" : ""}>
+          <span className="mb-6 block text-xs uppercase tracking-[0.4em] text-[#7d7aa5]">
             Dúvidas frequentes
-          </p>
+          </span>
 
           <EditableText
             sectionId={sectionId}
             field="title"
             initialValue={title}
             multiline
-            className="min-h-[180px] text-7xl font-black leading-[1.08] text-black"
+            className={`max-w-full break-words font-black leading-tight text-black ${
+              isMobile ? "text-4xl" : isTablet ? "text-5xl" : "text-7xl"
+            }`}
           />
 
           <EditableText
@@ -44,11 +58,13 @@ export function FaqSection() {
             field="subtitle"
             initialValue={subtitle}
             multiline
-            className="mt-8 max-w-xl text-2xl leading-[1.8] text-zinc-600"
+            className={`mt-6 max-w-full leading-relaxed text-[#4f566b] ${
+              isMobile ? "text-base" : "text-lg"
+            }`}
           />
         </div>
 
-        <div className="space-y-8">
+        <div className="flex flex-col gap-6">
           {faqItems.map((item, index) => {
             const question =
               section?.content?.[item.question] ||
@@ -65,14 +81,18 @@ export function FaqSection() {
             return (
               <div
                 key={item.question}
-                className="rounded-[32px] bg-white p-10 shadow-lg"
+                className={`rounded-[30px] bg-white shadow-lg ${
+                  isMobile ? "p-6" : "p-8"
+                }`}
               >
                 <EditableText
                   sectionId={sectionId}
                   field={item.question}
                   initialValue={question}
                   multiline
-                  className="min-h-[90px] text-4xl font-black leading-[1.15] text-black"
+                  className={`max-w-full break-words font-black leading-tight text-black ${
+                    isMobile ? "text-2xl" : "text-3xl"
+                  }`}
                 />
 
                 <EditableText
@@ -80,7 +100,9 @@ export function FaqSection() {
                   field={item.answer}
                   initialValue={answer}
                   multiline
-                  className="mt-4 min-h-[70px] text-xl leading-[1.8] text-zinc-600"
+                  className={`mt-5 max-w-full leading-relaxed text-[#4f566b] ${
+                    isMobile ? "text-base" : "text-lg"
+                  }`}
                 />
               </div>
             );
