@@ -38,10 +38,14 @@ function SidebarItem({ section }: { section: EditorSection }) {
     deleteSection,
     renameSection,
     toggleSectionVisibility,
+    selectedSection,
+    setSelectedSection,
   } = useEditor();
 
   const [editing, setEditing] = useState(false);
   const [label, setLabel] = useState(section.label);
+
+  const isSelected = selectedSection === section.id;
 
   const {
     attributes,
@@ -76,9 +80,12 @@ function SidebarItem({ section }: { section: EditorSection }) {
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center justify-between rounded-[28px] border px-4 py-5 transition ${
+      onClick={() => setSelectedSection(section.id)}
+      className={`flex cursor-pointer items-center justify-between rounded-[28px] border px-4 py-5 transition ${
         section.hidden
           ? "border-red-500/20 bg-red-500/5 opacity-60"
+          : isSelected
+          ? "border-blue-500 bg-blue-500/10 shadow-[0_0_0_1px_rgba(59,130,246,0.4)]"
           : "border-white/10 bg-[#0f0f0f] hover:border-white/20"
       } ${isDragging ? "z-50 scale-[1.03] opacity-70" : ""}`}
     >
@@ -87,7 +94,9 @@ function SidebarItem({ section }: { section: EditorSection }) {
           type="button"
           {...attributes}
           {...listeners}
+          onClick={(event) => event.stopPropagation()}
           className="shrink-0 cursor-grab text-zinc-500 active:cursor-grabbing"
+          title="Arrastar seção"
         >
           <GripVertical size={18} />
         </button>
@@ -96,6 +105,7 @@ function SidebarItem({ section }: { section: EditorSection }) {
           <input
             value={label}
             autoFocus
+            onClick={(event) => event.stopPropagation()}
             onChange={(event) => setLabel(event.target.value)}
             onBlur={saveLabel}
             onKeyDown={(event) => {
@@ -108,7 +118,7 @@ function SidebarItem({ section }: { section: EditorSection }) {
                 setEditing(false);
               }
             }}
-            className="min-w-0 flex-1 rounded-xl border border-white/10 bg-black px-3 py-2 text-base font-bold outline-none focus:border-white/40"
+            className="min-w-0 flex-1 rounded-xl border border-white/10 bg-black px-3 py-2 text-base font-bold text-white outline-none focus:border-white/40"
           />
         ) : (
           <strong
@@ -125,7 +135,10 @@ function SidebarItem({ section }: { section: EditorSection }) {
       <div className="ml-3 flex shrink-0 items-center gap-2">
         <button
           type="button"
-          onClick={() => setEditing(true)}
+          onClick={(event) => {
+            event.stopPropagation();
+            setEditing(true);
+          }}
           className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 transition hover:bg-white hover:text-black"
           title="Editar nome"
         >
@@ -134,7 +147,10 @@ function SidebarItem({ section }: { section: EditorSection }) {
 
         <button
           type="button"
-          onClick={() => toggleSectionVisibility(section.id)}
+          onClick={(event) => {
+            event.stopPropagation();
+            toggleSectionVisibility(section.id);
+          }}
           className={`flex h-10 w-10 items-center justify-center rounded-full transition ${
             section.hidden
               ? "bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white"
@@ -147,7 +163,10 @@ function SidebarItem({ section }: { section: EditorSection }) {
 
         <button
           type="button"
-          onClick={() => duplicateSection(section.id)}
+          onClick={(event) => {
+            event.stopPropagation();
+            duplicateSection(section.id);
+          }}
           className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 transition hover:bg-white/10"
           title="Duplicar"
         >
@@ -156,7 +175,10 @@ function SidebarItem({ section }: { section: EditorSection }) {
 
         <button
           type="button"
-          onClick={() => deleteSection(section.id)}
+          onClick={(event) => {
+            event.stopPropagation();
+            deleteSection(section.id);
+          }}
           className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500/10 text-red-400 transition hover:bg-red-500 hover:text-white"
           title="Excluir"
         >
@@ -185,7 +207,7 @@ export function Sidebar() {
   }
 
   return (
-    <aside className="w-[370px] border-r border-white/10 bg-black text-white">
+    <aside className="w-[370px] shrink-0 border-r border-white/10 bg-black text-white">
       <div className="border-b border-white/10 px-6 py-8">
         <p className="text-xs uppercase tracking-[0.4em] text-zinc-500">
           Estrutura da loja
