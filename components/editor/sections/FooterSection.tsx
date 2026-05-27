@@ -1,63 +1,124 @@
+"use client";
+
+import { EditableText } from "@/components/editor/EditableText";
+import { useEditor } from "@/hooks/useEditor";
+
 export function FooterSection() {
+  const { sections } = useEditor();
+
+  const section = sections.find((item) => item.type === "footer");
+
+  const sectionId = section?.id || "footer-section";
+
   return (
-    <footer className="bg-black px-10 py-20 text-white">
-      <div className="grid gap-12 lg:grid-cols-4">
+    <footer className="rounded-[40px] bg-black px-14 py-16 text-white">
+      <div className="grid grid-cols-4 gap-12">
         <div>
-          <span className="text-sm uppercase tracking-[0.35em] text-zinc-500">
+          <p className="mb-4 text-xs uppercase tracking-[0.4em] text-zinc-500">
             Fashion Store
-          </span>
-
-          <h2 className="mt-5 text-4xl font-black">
-            MGD Fashion
-          </h2>
-
-          <p className="mt-5 leading-relaxed text-zinc-400">
-            Plataforma visual moderna para ecommerce profissional.
           </p>
+
+          <EditableText
+            sectionId={sectionId}
+            field="title"
+            initialValue={section?.content?.title || "MGD Fashion"}
+            multiline
+            className="min-h-[110px] text-5xl font-black leading-[1.05] text-white"
+          />
+
+          <EditableText
+            sectionId={sectionId}
+            field="subtitle"
+            initialValue={
+              section?.content?.subtitle ||
+              "Plataforma visual moderna para ecommerce profissional."
+            }
+            multiline
+            className="mt-6 min-h-[100px] text-lg leading-9 text-zinc-400"
+          />
         </div>
 
         <div>
-          <h3 className="text-xl font-black">
-            Navegação
-          </h3>
+          <EditableText
+            sectionId={sectionId}
+            field="footerColumn1Title"
+            initialValue={section?.content?.footerColumn1Title || "Navegação"}
+            className="mb-8 text-3xl font-black text-white"
+          />
 
-          <ul className="mt-5 space-y-3 text-zinc-400">
-            <li>Home</li>
-            <li>Produtos</li>
-            <li>Coleções</li>
-            <li>Contato</li>
-          </ul>
+          <div className="space-y-4">
+            {["Home", "Produtos", "Coleções", "Contato"].map((text, index) => (
+              <EditableText
+                key={index}
+                sectionId={sectionId}
+                field={`footerNav${index + 1}`}
+                initialValue={section?.content?.[`footerNav${index + 1}`] || text}
+                className="text-lg text-zinc-300"
+              />
+            ))}
+          </div>
         </div>
 
         <div>
-          <h3 className="text-xl font-black">
-            Categorias
-          </h3>
+          <EditableText
+            sectionId={sectionId}
+            field="footerColumn2Title"
+            initialValue={section?.content?.footerColumn2Title || "Categorias"}
+            className="mb-8 text-3xl font-black text-white"
+          />
 
-          <ul className="mt-5 space-y-3 text-zinc-400">
-            <li>Feminino</li>
-            <li>Masculino</li>
-            <li>Acessórios</li>
-            <li>Promoções</li>
-          </ul>
+          <div className="space-y-4">
+            {["Feminino", "Masculino", "Acessórios", "Promoções"].map(
+              (text, index) => (
+                <EditableText
+                  key={index}
+                  sectionId={sectionId}
+                  field={`footerCategory${index + 1}`}
+                  initialValue={
+                    section?.content?.[`footerCategory${index + 1}`] || text
+                  }
+                  className="text-lg text-zinc-300"
+                />
+              )
+            )}
+          </div>
         </div>
 
         <div>
-          <h3 className="text-xl font-black">
-            Redes sociais
-          </h3>
+          <EditableText
+            sectionId={sectionId}
+            field="footerColumn3Title"
+            initialValue={section?.content?.footerColumn3Title || "Redes sociais"}
+            multiline
+            className="mb-8 min-h-[80px] text-3xl font-black leading-[1.05] text-white"
+          />
 
-          <ul className="mt-5 space-y-3 text-zinc-400">
-            <li>Instagram</li>
-            <li>Facebook</li>
-            <li>TikTok</li>
-            <li>YouTube</li>
-          </ul>
+          <div className="space-y-4">
+            {["Instagram", "Facebook", "TikTok", "YouTube"].map(
+              (text, index) => (
+                <EditableText
+                  key={index}
+                  sectionId={sectionId}
+                  field={`footerSocial${index + 1}`}
+                  initialValue={section?.content?.[`footerSocial${index + 1}`] || text}
+                  className="text-lg text-zinc-300"
+                />
+              )
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="mt-16 border-t border-white/10 pt-8 text-sm text-zinc-500">
-        © 2026 MGD Ecommerce — Todos os direitos reservados.
+      <div className="mt-16 border-t border-white/10 pt-8">
+        <EditableText
+          sectionId={sectionId}
+          field="copyright"
+          initialValue={
+            section?.content?.copyright ||
+            "© 2026 MGD Ecommerce — Todos os direitos reservados."
+          }
+          className="text-base text-zinc-500"
+        />
       </div>
     </footer>
   );

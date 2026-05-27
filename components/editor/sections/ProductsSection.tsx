@@ -1,91 +1,121 @@
 "use client";
 
 import { Package } from "lucide-react";
-import { EditableText } from "../EditableText";
+import { EditableText } from "@/components/editor/EditableText";
 import { useEditor } from "@/hooks/useEditor";
 
 export function ProductsSection() {
-  const { selectedSection, setSelectedSection } = useEditor();
+  const { sections } = useEditor();
 
-  const active = selectedSection === "products";
+  const section = sections.find((item) => item.type === "products");
+
+  const sectionId = section?.id || "products-section";
+
+  const title = section?.content?.title || "Produtos em destaque";
+
+  const subtitle =
+    section?.content?.subtitle || "Seleção especial para sua loja.";
+
+  const buttonText =
+    section?.content?.buttonText || "Comprar";
+
+  const backgroundColor =
+    section?.styles?.backgroundColor || "#f8fafc";
+
+  const products = [1, 2, 3];
 
   return (
     <section
-      onClick={() => setSelectedSection("products")}
-      className={`relative rounded-[40px] border bg-[#f7f7f7] px-10 py-14 transition-all duration-300 ${
-        active
-          ? "border-blue-500 shadow-[0_0_0_3px_rgba(59,130,246,0.25)]"
-          : "border-transparent"
-      }`}
+      className="rounded-[40px] px-16 py-20"
+      style={{ backgroundColor }}
     >
-      <div className="mb-10 flex items-start justify-between">
-        <div>
-          <EditableText
-            initialValue="PRODUTOS"
-            className="text-sm uppercase tracking-[0.5em] text-zinc-500"
-          />
+      <div className="mx-auto mb-14 max-w-5xl text-center">
+        <p className="mb-6 text-sm uppercase tracking-[0.4em] text-[#7b7691]">
+          Produtos
+        </p>
 
-          <EditableText
-            initialValue="Produtos em destaque"
-            className="mt-5 text-6xl font-black text-black"
-          />
-        </div>
+        <EditableText
+          sectionId={sectionId}
+          field="title"
+          initialValue={title}
+          className="mx-auto text-center text-6xl font-black leading-tight text-black"
+        />
 
-        <div className="flex flex-col items-end gap-4">
-          {active && (
-            <div className="rounded-full bg-blue-500 px-5 py-2 text-sm font-bold text-white">
-              Produtos selecionado
-            </div>
-          )}
-
-          <button className="rounded-full bg-black px-8 py-4 font-bold text-white">
-            Ver todos
-          </button>
-        </div>
+        <EditableText
+          sectionId={sectionId}
+          field="subtitle"
+          initialValue={subtitle}
+          multiline
+          className="mx-auto mt-6 max-w-3xl text-center text-2xl leading-[1.6] text-zinc-600"
+        />
       </div>
 
-      <div className="grid grid-cols-3 gap-8">
-        {[1, 2, 3].map((item) => (
-          <div
-            key={item}
-            className="group overflow-hidden rounded-[36px] border border-black/5 bg-white shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_30px_80px_rgba(0,0,0,0.12)]"
-          >
-            <div className="relative flex h-[340px] items-center justify-center overflow-hidden bg-[#ececec]">
-              <div className="flex h-20 w-20 items-center justify-center rounded-[28px] bg-black text-white transition-all duration-500 group-hover:scale-110 group-hover:rotate-6">
-                <Package size={34} />
+      <div className="grid grid-cols-3 gap-10">
+        {products.map((item) => {
+          const productTitle =
+            section?.content?.[`product${item}Title`] ||
+            "Produto Premium";
+
+          const productDescription =
+            section?.content?.[`product${item}Description`] ||
+            "Área visual para preview dos produtos.";
+
+          const productPrice =
+            section?.content?.[`product${item}Price`] ||
+            "R$ 199,90";
+
+          return (
+            <article
+              key={item}
+              className="overflow-hidden rounded-[36px] bg-white shadow-xl"
+            >
+              <div className="flex h-[260px] items-center justify-center bg-zinc-200">
+                <div className="flex h-20 w-20 rotate-6 items-center justify-center rounded-[24px] bg-black text-white shadow-xl">
+                  <Package size={34} />
+                </div>
               </div>
-            </div>
 
-            <div className="space-y-5 p-8">
-              <EditableText
-                initialValue="FASHION"
-                className="text-sm uppercase tracking-[0.5em] text-zinc-500"
-              />
+              <div className="p-8">
+                <p className="text-sm uppercase tracking-[0.35em] text-[#7b7691]">
+                  Fashion
+                </p>
 
-              <EditableText
-                initialValue="Produto Premium"
-                className="text-3xl font-black text-black"
-              />
-
-              <EditableText
-                multiline
-                initialValue="Área visual para preview dos produtos da loja."
-                className="text-lg leading-relaxed text-zinc-600"
-              />
-
-              <div className="flex items-center justify-between gap-4 pt-2">
                 <EditableText
-                  initialValue="R$ 289,90"
-                  className="text-5xl font-black text-black"
+                  sectionId={sectionId}
+                  field={`product${item}Title`}
+                  initialValue={productTitle}
+                  className="mt-6 text-3xl font-black leading-tight text-black"
                 />
 
-                <button className="rounded-full bg-black px-8 py-4 font-bold text-white transition-all duration-300 hover:scale-105 hover:bg-zinc-800">
-                  Comprar
-                </button>
+                <EditableText
+                  sectionId={sectionId}
+                  field={`product${item}Description`}
+                  initialValue={productDescription}
+                  multiline
+                  className="mt-5 text-lg leading-8 text-zinc-600"
+                />
+
+                <div className="mt-8 flex flex-col gap-5">
+                  <EditableText
+                    sectionId={sectionId}
+                    field={`product${item}Price`}
+                    initialValue={productPrice}
+                    className="w-full text-4xl font-black leading-none text-black"
+                  />
+
+                  <div className="w-full rounded-full bg-black px-6 py-4 text-center font-bold text-white transition hover:scale-[1.03]">
+                    <EditableText
+                      sectionId={sectionId}
+                      field="buttonText"
+                      initialValue={buttonText}
+                      className="w-full bg-transparent text-center font-bold text-white outline-none"
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        ))}
+            </article>
+          );
+        })}
       </div>
     </section>
   );

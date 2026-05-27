@@ -1,45 +1,90 @@
-const questions = [
-  "Como funciona o prazo de entrega?",
-  "Posso trocar ou devolver uma peça?",
-  "A loja aceita Pix e cartão?",
-  "Os produtos podem ser editados?",
+"use client";
+
+import { EditableText } from "@/components/editor/EditableText";
+import { useEditor } from "@/hooks/useEditor";
+
+const faqItems = [
+  { question: "faqQuestion1", answer: "faqAnswer1" },
+  { question: "faqQuestion2", answer: "faqAnswer2" },
+  { question: "faqQuestion3", answer: "faqAnswer3" },
 ];
 
 export function FaqSection() {
+  const { sections } = useEditor();
+
+  const section = sections.find((item) => item.type === "faq");
+
+  const sectionId = section?.id || "faq-section";
+
+  const title =
+    section?.content?.title || "Perguntas frequentes";
+
+  const subtitle =
+    section?.content?.subtitle ||
+    "Tire as principais dúvidas dos seus clientes.";
+
   return (
-    <section className="px-10 py-20">
-      <div className="grid gap-16 lg:grid-cols-2">
+    <section className="rounded-[40px] bg-[#f7f7f7] px-16 py-24">
+      <div className="grid grid-cols-2 gap-16">
         <div>
-          <span className="text-sm uppercase tracking-[0.35em] text-zinc-500">
+          <p className="mb-6 text-sm uppercase tracking-[0.4em] text-[#7b7691]">
             Dúvidas frequentes
-          </span>
-
-          <h2 className="mt-6 text-6xl font-black leading-[0.95] text-black">
-            Compra simples,
-            <br />
-            segura e moderna.
-          </h2>
-
-          <p className="mt-8 max-w-xl text-xl leading-relaxed text-zinc-600">
-            Área destinada para perguntas frequentes da loja virtual.
           </p>
+
+          <EditableText
+            sectionId={sectionId}
+            field="title"
+            initialValue={title}
+            multiline
+            className="min-h-[180px] text-7xl font-black leading-[1.08] text-black"
+          />
+
+          <EditableText
+            sectionId={sectionId}
+            field="subtitle"
+            initialValue={subtitle}
+            multiline
+            className="mt-8 max-w-xl text-2xl leading-[1.8] text-zinc-600"
+          />
         </div>
 
-        <div className="space-y-6">
-          {questions.map((question) => (
-            <article
-              key={question}
-              className="rounded-[28px] border border-black/5 bg-white p-8 shadow-sm"
-            >
-              <h3 className="text-2xl font-black text-black">
-                {question}
-              </h3>
+        <div className="space-y-8">
+          {faqItems.map((item, index) => {
+            const question =
+              section?.content?.[item.question] ||
+              [
+                "Como funciona o prazo de entrega?",
+                "Posso trocar ou devolver uma peça?",
+                "A loja aceita Pix e cartão?",
+              ][index];
 
-              <p className="mt-4 text-lg leading-relaxed text-zinc-600">
-                Resposta editável diretamente pelo editor visual da loja.
-              </p>
-            </article>
-          ))}
+            const answer =
+              section?.content?.[item.answer] ||
+              "Resposta editável diretamente pelo editor visual da loja.";
+
+            return (
+              <div
+                key={item.question}
+                className="rounded-[32px] bg-white p-10 shadow-lg"
+              >
+                <EditableText
+                  sectionId={sectionId}
+                  field={item.question}
+                  initialValue={question}
+                  multiline
+                  className="min-h-[90px] text-4xl font-black leading-[1.15] text-black"
+                />
+
+                <EditableText
+                  sectionId={sectionId}
+                  field={item.answer}
+                  initialValue={answer}
+                  multiline
+                  className="mt-4 min-h-[70px] text-xl leading-[1.8] text-zinc-600"
+                />
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

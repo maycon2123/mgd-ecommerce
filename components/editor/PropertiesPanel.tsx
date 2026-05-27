@@ -1,6 +1,6 @@
 "use client";
 
-import { Layers, Settings2 } from "lucide-react";
+import { ImagePlus, Layers, Settings2 } from "lucide-react";
 import { useEditor } from "@/hooks/useEditor";
 
 export function PropertiesPanel() {
@@ -32,6 +32,14 @@ export function PropertiesPanel() {
         </div>
       </aside>
     );
+  }
+
+  function handleImageUpload(file: File | undefined) {
+    if (!file || !section) return;
+
+    const imageUrl = URL.createObjectURL(file);
+
+    updateSectionContent(section.id, "image", imageUrl);
   }
 
   return (
@@ -117,6 +125,49 @@ export function PropertiesPanel() {
             className="w-full rounded-2xl border border-white/10 bg-black px-4 py-4 text-white outline-none transition placeholder:text-zinc-600 focus:border-blue-500"
           />
         </div>
+
+        <div>
+          <label className="mb-2 block text-sm font-bold text-zinc-300">
+            Imagem do Hero
+          </label>
+
+          <label className="flex cursor-pointer flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-white/15 bg-black p-6 text-center transition hover:border-blue-500 hover:bg-blue-500/5">
+            <ImagePlus size={28} className="text-blue-400" />
+
+            <div>
+              <p className="text-sm font-bold text-white">
+                Clique para enviar imagem
+              </p>
+
+              <p className="mt-1 text-xs text-zinc-500">
+                PNG, JPG ou WEBP
+              </p>
+            </div>
+
+            <input
+              type="file"
+              accept="image/png,image/jpeg,image/jpg,image/webp"
+              onChange={(event) => handleImageUpload(event.target.files?.[0])}
+              className="hidden"
+            />
+          </label>
+        </div>
+
+        {section.content?.image && (
+          <div>
+            <label className="mb-2 block text-sm font-bold text-zinc-300">
+              Pré-visualização
+            </label>
+
+            <div className="h-40 overflow-hidden rounded-3xl border border-white/10 bg-black">
+              <img
+                src={section.content.image}
+                alt="Prévia da imagem"
+                className="h-full w-full object-cover"
+              />
+            </div>
+          </div>
+        )}
 
         <div>
           <label className="mb-2 block text-sm font-bold text-zinc-300">

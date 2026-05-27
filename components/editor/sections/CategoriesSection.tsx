@@ -1,48 +1,109 @@
+"use client";
+
+import { EditableText } from "@/components/editor/EditableText";
+import { useEditor } from "@/hooks/useEditor";
+
+type CategoryCard = {
+  titleField: string;
+  textField: string;
+};
+
+const categoryCards: CategoryCard[] = [
+  { titleField: "category1Title", textField: "category1Text" },
+  { titleField: "category2Title", textField: "category2Text" },
+  { titleField: "category3Title", textField: "category3Text" },
+  { titleField: "category4Title", textField: "category4Text" },
+];
+
 export function CategoriesSection() {
+  const { sections } = useEditor();
+
+  const section = sections.find((item) => item.type === "categories");
+
+  const sectionId = section?.id || "categories-section";
+
+  const title = section?.content?.title || "Explore por estilo";
+
+  const subtitle =
+    section?.content?.subtitle ||
+    "Estrutura modular para categorias principais da loja virtual.";
+
+  const buttonText = section?.content?.buttonText || "Explorar";
+
+  const backgroundColor = section?.styles?.backgroundColor || "#eef4ff";
+
   return (
-    <section className="px-10 py-20">
-      <div className="text-center">
-        <span className="text-sm uppercase tracking-[0.35em] text-zinc-500">
+    <section
+      className="rounded-[40px] px-16 py-20"
+      style={{ backgroundColor }}
+    >
+      <div className="mx-auto max-w-5xl text-center">
+        <p className="mb-6 text-sm uppercase tracking-[0.4em] text-[#7b7691]">
           Categorias
-        </span>
-
-        <h2 className="mt-4 text-5xl font-black text-black">
-          Explore por estilo
-        </h2>
-
-        <p className="mx-auto mt-6 max-w-2xl text-xl text-zinc-600">
-          Estrutura modular para categorias principais da loja virtual.
         </p>
+
+        <EditableText
+          sectionId={sectionId}
+          field="title"
+          initialValue={title}
+          className="mx-auto text-center text-6xl font-black leading-tight text-black"
+        />
+
+        <EditableText
+          sectionId={sectionId}
+          field="subtitle"
+          initialValue={subtitle}
+          multiline
+          className="mx-auto mt-6 max-w-3xl text-center text-2xl leading-[1.6] text-zinc-600"
+        />
       </div>
 
-      <div className="mt-14 grid gap-8 lg:grid-cols-4">
-        {[
-          "Feminino",
-          "Masculino",
-          "Acessórios",
-          "Coleções",
-        ].map((category) => (
-          <article
-            key={category}
-            className="overflow-hidden rounded-[32px] border border-black/5 bg-white shadow-sm transition hover:-translate-y-1"
-          >
-            <div className="h-[260px] bg-gradient-to-br from-zinc-200 to-zinc-100" />
+      <div className="mt-16 grid grid-cols-4 gap-8">
+        {categoryCards.map((card, index) => {
+          const categoryTitle =
+            section?.content?.[card.titleField] || `Categoria ${index + 1}`;
 
-            <div className="p-8">
-              <h3 className="text-3xl font-black text-black">
-                {category}
-              </h3>
+          const categoryText =
+            section?.content?.[card.textField] ||
+            "Categoria visual para navegação do ecommerce.";
 
-              <p className="mt-4 text-zinc-600">
-                Categoria visual para navegação do ecommerce.
-              </p>
+          return (
+            <div
+              key={card.titleField}
+              className="flex min-h-[560px] flex-col overflow-hidden rounded-[32px] bg-white shadow-xl"
+            >
+              <div className="h-[260px] shrink-0 bg-zinc-200" />
 
-              <button className="mt-8 rounded-full bg-black px-6 py-3 font-bold text-white">
-                Explorar
-              </button>
+              <div className="flex flex-1 flex-col p-8">
+                <EditableText
+                  sectionId={sectionId}
+                  field={card.titleField}
+                  initialValue={categoryTitle}
+                  className="text-3xl font-black leading-tight text-black"
+                />
+
+                <EditableText
+                  sectionId={sectionId}
+                  field={card.textField}
+                  initialValue={categoryText}
+                  multiline
+                  className="mt-5 text-lg leading-8 text-zinc-600"
+                />
+
+                <div className="mt-auto pt-8">
+                  <div className="rounded-full bg-black px-7 py-4 text-center font-bold text-white transition hover:scale-[1.03]">
+                    <EditableText
+                      sectionId={sectionId}
+                      field="buttonText"
+                      initialValue={buttonText}
+                      className="w-full bg-transparent text-center font-bold text-white outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
-          </article>
-        ))}
+          );
+        })}
       </div>
     </section>
   );
