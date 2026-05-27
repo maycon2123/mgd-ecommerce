@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+:root {
+  --background: #000000;
+  --foreground: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  overflow-x: hidden;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+button,
+a {
+  cursor: pointer;
+}
+
+button {
+  border: none;
+}
+
+.swiper-slide {
+  height: auto !important;
+}
+
+::selection {
+  background: white;
+  color: black;
+}
